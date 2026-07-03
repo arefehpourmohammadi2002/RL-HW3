@@ -16,6 +16,7 @@ class MDP:
 
     def state_transition(self, state, action):
         next_state = state.copy()
+
         if action == 0: # action is hit
             next_state[0] += min(random.randint(1, 13), 10)
             if next_state[2] == 1 and next_state[0] > 21:
@@ -57,7 +58,7 @@ class MDP:
             return 1
     
     def is_finished(self, state, action):
-        if state[0] >= 21 or self.dealer_hidden_sum >= 21:
+        if state[0] > 21 or self.dealer_hidden_sum > 21:
             return True
         elif 17 <= self.dealer_hidden_sum and self.dealer_hidden_sum <= 21 and action == 1:
             return True

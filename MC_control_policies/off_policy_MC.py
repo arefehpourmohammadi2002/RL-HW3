@@ -1,7 +1,7 @@
 import numpy as np
 from play_game import play_game
 import random
-import statistics
+
 ''' 
 in this file i implemented the solution for the problem with off policy MC 
 '''
@@ -10,38 +10,21 @@ class OffPoicyMC:
         self.MDP = MDP
         self.discount = discount
         self.policy_pi = policy_pi
-        self.policy_pi[9, :, :, 1] = 1
-        self.policy_pi[9, :, :, 0] = 0
-        self.action_value_fun = np.zeros((10, 10, 2, 2))
+        self.action_value_fun = action_value_fun
         self.C = np.zeros((10, 10, 2, 2))
         self.num_episodes = num_episodes
-    
-    def generate_soft_policy(self):
-        b = np.zeros((10, 10, 2, 2))
-
-        hit_prob = random.uniform(0, 1)
-        flip_coin = random.random(0, 1)
-        if flip_coin == 1:
-            b[:,:,:,0] = hit_prob
-            b[:,:,:,1] = 1-hit_prob
         
-        else:
-            b[:,:,:,0] = 1-hit_prob
-            b[:,:,:,1] = hit_prob
-
-    
+    def generate_soft_policy(self):
+        b = np.full((10, 10, 2, 2), 0.5)
         return b
 
-
     def off_poicy_MC_model(self):
-        for i in range(0, self.num_episodes):
+        for _ in range(0, self.num_episodes):
 
             policy_b = self.generate_soft_policy()
 
             usable_ace = False
-
-            player_first_card = random.randint(1, 10)
-
+            player_first_card = min(random.randint(1, 13), 10)
             players_sum = player_first_card
 
             if player_first_card == 1:
@@ -49,24 +32,23 @@ class OffPoicyMC:
                     players_sum = 11
             
             while players_sum < 12:
-                player_second_card = random.randint(1, 10)
+                player_second_card = min(random.randint(1, 13), 10)
                 if (players_sum != 11 and player_second_card == 1):
                     usable_ace = True
                     players_sum += 11
                 else:
                     players_sum += player_second_card
 
-            dealer_first_card = random.randint(1, 10)
-            dealer_second_card = random.randint(1, 10)
+            dealer_second_card = min(random.randint(1, 13), 10)
             
             if usable_ace:
                 S_0 = np.array([players_sum, dealer_second_card, 1], dtype=int)
             else:
                 S_0 = np.array([players_sum, dealer_second_card, 0], dtype=int)
 
-            self.MDP.dealer_hidden_sum = dealer_first_card + dealer_second_card
+            self.MDP.dealer_hidden_sum = dealer_second_card
 
-            if random.random() <= self.policy_b[S_0[0]-12, S_0[1]-1, S_0[2], 0]:
+            if random.random() <= policy_b[S_0[0]-12, S_0[1]-1, S_0[2], 0]:
                 A_0 = 0 
             else:
                 A_0 = 1
